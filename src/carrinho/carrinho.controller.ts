@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CarrinhoService } from './carrinho.service';
 import { CreateCarrinhoDto } from './dto/create-carrinho.dto';
-import { UpdateCarrinhoDto } from './dto/update-carrinho.dto';
 
 @Controller('carrinho')
 export class CarrinhoController {
@@ -12,19 +11,9 @@ export class CarrinhoController {
     return this.carrinhoService.create(createCarrinhoDto);
   }
 
-  @Get()
-  findAll() {
-    return this.carrinhoService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.carrinhoService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarrinhoDto: UpdateCarrinhoDto) {
-    return this.carrinhoService.update(id, updateCarrinhoDto);
+  @Get(':clienteid')
+  findAll(@Param('clienteid') clienteId: string ) {
+    return this.carrinhoService.findAll(clienteId);
   }
 
   @Delete(':id')
