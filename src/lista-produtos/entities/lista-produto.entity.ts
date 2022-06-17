@@ -8,7 +8,9 @@ export class ListaProduto {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => Carrinho, carrinho => carrinho.produtos)
+    @ManyToOne(() => Carrinho, carrinho => carrinho.produtos, {
+        onDelete: 'CASCADE'
+    })
     carrinho: Carrinho;
 
     @RelationId((lista: ListaProduto) => lista.carrinho)

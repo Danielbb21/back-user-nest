@@ -13,7 +13,9 @@ export class Carrinho {
   @RelationId((carrinho: Carrinho) => carrinho.cliente)
   clienteId: string;
 
-  @OneToMany(() => ListaProduto, lista => lista.carrinho )
+  @OneToMany(() => ListaProduto, lista => lista.carrinho, {
+    onDelete: 'CASCADE'
+})
   produtos: ListaProduto[];
 
   @UpdateDateColumn()

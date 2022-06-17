@@ -1,5 +1,5 @@
 import { ListaProdutosService } from './../lista-produtos/lista-produtos.service';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
@@ -18,7 +18,7 @@ export class CarrinhoService {
 
   async create(data: CreateCarrinhoDto) {
     const user = await this.userService.findOne(data.clienteId);
-
+    let erros = false;
     const carrinho = this.carrinhoRepo.create({
       cliente: user
     });
@@ -27,26 +27,44 @@ export class CarrinhoService {
     if (!carrinhoSaved) {
       throw new InternalServerErrorException('Problema ao criar um carrinho');
     }
-    data.produtos.forEach(async (produto) => {
-      await this.listaProdutosService.create({ carrinho: carrinhoSaved, ...produto });
+    const erro = data.produtos.map(async (produto) => {
+      try {
+        await this.listaProdutosService.create({ carrinho: carrinhoSaved, ...produto });
+        
+      }
+      catch (err) {
+       return true;
+      }
     })
-
+    const hasError = await Promise.all(erro);
+    if (hasError.includes(true)) {
+      console.log('dentro de erros');
+      await this.remove(carrinhoSaved.id);
+      return new BadRequestException('problemas ao criar carrinho');
+    }
     return carrinhoSaved;
   }
 
   async findAll(clienteId: string) {
     return await this.carrinhoRepo.find({
-      where: { cliente:{
-        id: clienteId
-      } },
+      where: {
+        cliente: {
+          id: clienteId
+        }
+      },
       relations: ["produtos", "produtos.produto"]
     });
   }
 
   async findOne(id: string) {
-    return await this.carrinhoRepo.findOne({
-      where: {id},
-    });
+    try {
+      return await this.carrinhoRepo.findOneOrFail({
+        where: { id },
+      });
+    }
+    catch (err) {
+      throw new NotFoundException('carrinho nao encontrado')
+    }
   }
 
   async remove(id: string) {

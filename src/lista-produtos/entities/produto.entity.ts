@@ -16,4 +16,7 @@ export class Produto {
 
     @Column() 
     imagem: string;
+    
+    @Column({default: 32}) 
+    estoque: number;
 }
