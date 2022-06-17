@@ -43,6 +43,7 @@ export class ListaProdutosService {
     if (!listaSaved) {
       throw new InternalServerErrorException('Problema ao criar um item da lista');
     }
+    listaSaved.carrinho = null;
     return listaSaved;
   }
 
